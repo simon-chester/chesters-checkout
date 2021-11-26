@@ -1,14 +1,48 @@
 ﻿using ChestersCheckout.Core.Services;
+using ChestersCheckout.Core.Services.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 
-Console.WriteLine("Please enter products, seperated by commas");
+namespace ChestersCheckout.ConsoleApp
+{
+    public class Program
+    {
+        static async Task Main(string[] args)
+        {
+            using var host = CreateHostBuilder(args).Build();
 
-var userProducts = Console.ReadLine() ?? "";
+            await host.StartAsync();
+            Run(host.Services.CreateScope().ServiceProvider);
+            await host.StopAsync();
+            await host.WaitForShutdownAsync();
+        }
 
-var productRepository = new StaticProductRepositoryService();
-var basketBuilder = new BasketBuilderService(productRepository);
-var basket = basketBuilder.BuildBasket(userProducts.Split(',', StringSplitOptions.RemoveEmptyEntries));
-var totalCost = new BasketCostCalculatorService(productRepository).CalculateTotalCost(basket);
+        private static IHostBuilder CreateHostBuilder(string[] args)
+        {
+            return Host.CreateDefaultBuilder(args)
+                .ConfigureServices(ConfigureServices);
+        }
 
-Console.WriteLine($"Total cost: {(decimal)totalCost / 100:C}");
+        private static void ConfigureServices(HostBuilderContext builder, IServiceCollection services)
+        {
+            services.AddScoped<IProductRepositoryService, StaticProductRepositoryService>();
+            services.AddScoped<BasketBuilderService>();
+            services.AddScoped<BasketCostCalculatorService>();
+        }
 
-Console.ReadLine();
+        private static void Run(IServiceProvider services)
+        {
+            Console.WriteLine("Please enter products, seperated by commas");
+
+            var userProducts = Console.ReadLine() ?? "";
+
+            var basketBuilder = services.GetRequiredService<BasketBuilderService>();
+            var basket = basketBuilder.BuildBasket(userProducts.Split(',', StringSplitOptions.RemoveEmptyEntries));
+            var totalCost = services.GetRequiredService<BasketCostCalculatorService>().CalculateTotalCost(basket);
+
+            Console.WriteLine($"Total cost: {(decimal)totalCost / 100:C}");
+
+            Console.ReadLine();
+        }
+    }
+}
