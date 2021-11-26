@@ -10,21 +10,21 @@ namespace ChestersCheckout.Core.Services
 {
     public class BasketCostCalculatorService
     {
-        private readonly IProductRepositoryService _productRepository;
+        private readonly IEnumerable<IDiscounterService> _discounters;
 
-        public BasketCostCalculatorService(IProductRepositoryService productRepository)
+        public BasketCostCalculatorService(IEnumerable<IDiscounterService> discounters)
         {
-            _productRepository = productRepository;
+            _discounters = discounters;
         }
 
-        public int CalculateTotalCost(Basket basket) => basket.Items
+        public int CalculateTotalCost(Basket basket)
+            => basket.Items
                 .Select(item => new
                 {
                     item.Key,
-                    Quantity = item.Value,
-                    Price = _productRepository.GetPrice(item.Key)
+                    item.Value.Quantity,
+                    item.Value.UnitPrice
                 })
-                .Where(item => item.Price.HasValue)
-                .Sum(item => item.Quantity * item.Price!.Value);
+                .Sum(item => item.Quantity * item.UnitPrice);
     }
 }

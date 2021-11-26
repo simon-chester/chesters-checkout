@@ -17,8 +17,8 @@ namespace ChestersCheckout.Core.Tests.Services
         {
             // Arrange
             var productRepoMock = new Mock<IProductRepositoryService>();
-            productRepoMock.Setup(e => e.IsValidProduct(It.IsAny<string>()))
-                .Returns<string>(val => val == "apple");
+            productRepoMock.Setup(e => e.GetPrice(It.IsAny<string>()))
+                .Returns<string>(s => s == "apple" ? 99 : null);
             var service = new BasketBuilderService(productRepoMock.Object);
 
             // Act
@@ -29,7 +29,8 @@ namespace ChestersCheckout.Core.Tests.Services
                 item =>
                 {
                     Assert.Equal("apple", item.Key);
-                    Assert.Equal(1, item.Value);
+                    Assert.Equal(1, item.Value.Quantity);
+                    Assert.Equal(99, item.Value.UnitPrice);
                 });
         }
 
@@ -38,7 +39,7 @@ namespace ChestersCheckout.Core.Tests.Services
         {
             // Arrange
             var productRepoMock = new Mock<IProductRepositoryService>();
-            productRepoMock.Setup(e => e.IsValidProduct(It.IsAny<string>())).Returns(true);
+            productRepoMock.Setup(e => e.GetPrice(It.IsAny<string>())).Returns(1);
             var service = new BasketBuilderService(productRepoMock.Object);
 
             // Act
@@ -49,15 +50,16 @@ namespace ChestersCheckout.Core.Tests.Services
                 item =>
                 {
                     Assert.Equal("apple", item.Key);
-                    Assert.Equal(2, item.Value);
+                    Assert.Equal(2, item.Value.Quantity);
+                    Assert.Equal(1, item.Value.UnitPrice);
                 },
                 item =>
                 {
                     Assert.Equal("orange", item.Key);
-                    Assert.Equal(1, item.Value);
+                    Assert.Equal(1, item.Value.Quantity);
+                    Assert.Equal(1, item.Value.UnitPrice);
                 });
         }
-
 
         [Theory]
         [InlineData("pepper ")]
@@ -68,7 +70,7 @@ namespace ChestersCheckout.Core.Tests.Services
         {
             // Arrange
             var productRepoMock = new Mock<IProductRepositoryService>();
-            productRepoMock.Setup(e => e.IsValidProduct("pepper")).Returns(true);
+            productRepoMock.Setup(e => e.GetPrice("pepper")).Returns(123);
             var service = new BasketBuilderService(productRepoMock.Object);
 
             // Act 
@@ -79,7 +81,8 @@ namespace ChestersCheckout.Core.Tests.Services
                 item =>
                 {
                     Assert.Equal("pepper", item.Key);
-                    Assert.Equal(1, item.Value);
+                    Assert.Equal(1, item.Value.Quantity);
+                    Assert.Equal(123, item.Value.UnitPrice);
                 });
         }
     }

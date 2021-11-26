@@ -3,6 +3,5 @@
     public interface IProductRepositoryService
     {
         int? GetPrice(string productName);
-        bool IsValidProduct(string productName);
     }
 }

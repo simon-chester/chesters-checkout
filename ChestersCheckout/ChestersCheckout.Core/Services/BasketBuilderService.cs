@@ -20,10 +20,10 @@ namespace ChestersCheckout.Core.Services
         public Basket BuildBasket(string[] products)
         {
             var items = products.Select(SanitizeName)
-                    .Where(_productRepository.IsValidProduct)
                     .GroupBy(s => s, g => 1)
-                    .Select(g => new { g.Key, Count = g.Count() })
-                    .ToDictionary(g => g.Key, g => g.Count);
+                    .Select(g => new { g.Key, Quantity = g.Count(), UnitPrice = _productRepository.GetPrice(g.Key) })
+                    .Where(x => x.UnitPrice.HasValue)
+                    .ToDictionary(g => g.Key, g => (g.Quantity, g.UnitPrice!.Value));
 
             return new Basket(items);
         }

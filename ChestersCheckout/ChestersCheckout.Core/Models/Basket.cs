@@ -8,9 +8,9 @@ namespace ChestersCheckout.Core.Models
 {
     public class Basket
     {
-        public IDictionary<string, int> Items { get; set; }
+        public IDictionary<string, (int Quantity, int UnitPrice)> Items { get; set; }
 
-        public Basket(IDictionary<string, int> items)
+        public Basket(IDictionary<string, (int, int)> items)
         {
             Items = items;
         }
