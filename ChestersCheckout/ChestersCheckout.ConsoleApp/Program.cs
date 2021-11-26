@@ -1,5 +1,6 @@
 ﻿using ChestersCheckout.Core.Services;
 using ChestersCheckout.Core.Services.Abstractions;
+using ChestersCheckout.Core.Services.Discounting;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -26,6 +27,9 @@ namespace ChestersCheckout.ConsoleApp
         private static void ConfigureServices(HostBuilderContext builder, IServiceCollection services)
         {
             services.AddScoped<IProductRepositoryService, StaticProductRepositoryService>();
+            services.AddScoped<IEnumerable<IDiscounterService>>(sp => new IDiscounterService[]
+                { new BogofDiscounterService("apple") }
+            );
             services.AddScoped<BasketBuilderService>();
             services.AddScoped<BasketCostCalculatorService>();
         }

@@ -1,5 +1,6 @@
 using ChestersCheckout.Core.Services;
 using ChestersCheckout.Core.Services.Abstractions;
+using ChestersCheckout.Core.Services.Discounting;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -23,6 +24,27 @@ namespace ChestersCheckout.Core.Tests
 
             // Assert
             Assert.Equal(195, result);
+        }
+
+        [Theory]
+        [InlineData(0, 75)]
+        [InlineData(2, 135)]
+        [InlineData(3, 195)]
+        [InlineData(4, 195)]
+        public void CalculateTotalCost_ReturnsDiscountedCost_GivenBasketAndBogofDiscounter(int appleQuantity, int expectedCost)
+        {
+            // Arrange
+            var service = new BasketCostCalculatorService(new[] { new BogofDiscounterService("apple") });
+
+            // Act
+            var result = service.CalculateTotalCost(new Models.Basket(new Dictionary<string, (int Quantity, int UnitPrice)>
+            {
+                { "apple", (appleQuantity, 60) },
+                { "orange", (3, 25) }
+            }));
+
+            // Assert
+            Assert.Equal(expectedCost, result);
         }
     }
 }

@@ -18,7 +18,8 @@ namespace ChestersCheckout.Core.Services
         }
 
         public int CalculateTotalCost(Basket basket)
-            => basket.Items
+        {
+            var cost = basket.Items
                 .Select(item => new
                 {
                     item.Key,
@@ -26,5 +27,10 @@ namespace ChestersCheckout.Core.Services
                     item.Value.UnitPrice
                 })
                 .Sum(item => item.Quantity * item.UnitPrice);
+
+            var discount = _discounters.Sum(d => d.CalculateDiscount(basket));
+
+            return cost - discount;
+        }
     }
 }
