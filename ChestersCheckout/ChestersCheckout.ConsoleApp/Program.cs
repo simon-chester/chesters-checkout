@@ -27,9 +27,10 @@ namespace ChestersCheckout.ConsoleApp
         private static void ConfigureServices(HostBuilderContext builder, IServiceCollection services)
         {
             services.AddScoped<IProductRepositoryService, StaticProductRepositoryService>();
-            services.AddScoped<IEnumerable<IDiscounterService>>(sp => new IDiscounterService[]
-                { new BogofDiscounterService("apple") }
-            );
+            services.AddScoped<IEnumerable<IDiscounterService>>(sp => new IDiscounterService[] { 
+                new BogofDiscounterService("apple"),
+                new ThreeForTwoDiscounterService("orange") 
+            });
             services.AddScoped<BasketBuilderService>();
             services.AddScoped<BasketCostCalculatorService>();
         }
